@@ -1,45 +1,51 @@
-/* --- NUEVA PALETA: VERDE BOSQUE PROFUNDO --- */
-
+/* --- PALETA DE COLORES: VERDE BOSQUE PROFUNDO --- */
 :root {
-    /* El color exacto del footer anterior: #2c3e18 */
-    /* En formato RGB para transparencias es: 44, 62, 24 */
-    --color-principal: #2c3e18;  
-    
-    /* Un tono un poco más claro para contrastes (hover) */
-    --color-acento: #4a6628; 
-    
-    /* Color de texto oscuro */
-    --color-texto: #1a1a1a;      
-    
-    /* Fondo de tarjeta: Blanco con ligera transparencia */
-    --color-fondo-tarjeta: rgba(255, 255, 255, 0.92); 
+    --color-principal: #2c3e18;      /* Verde Bosque Oscuro */
+    --color-acento: #4a6628;         /* Verde un poco más claro */
+    --color-texto: #1a1a1a;          /* Gris casi negro */
+    --color-fondo-tarjeta: #ffffff;  /* Blanco puro */
 }
 
 body {
-    /* FONDO CON TEXTURA CORREGIDO */
     background-image: url('img/textura-fondo.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
-    
     color: var(--color-texto);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Navbar: Ahora usa el Verde Bosque sólido */
+/* --- NAVBAR --- */
 .navbar-custom {
     background-color: var(--color-principal) !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 .navbar-brand, .nav-link {
-    color: #f1f1f1 !important; /* Blanco hueso */
+    color: #f1f1f1 !important;
     font-weight: 500;
 }
+.logo-navbar {
+    height: 50px; width: 50px;
+    background-color: white;
+    border-radius: 50%;
+    padding: 5px;
+    object-fit: contain;
+}
+/* Menú Categorías */
+#lista-categorias-nav .nav-link {
+    color: white !important;
+    font-weight: 600;
+    padding: 8px 15px;
+    border-bottom: 2px solid transparent;
+}
+#lista-categorias-nav .nav-link:hover {
+    color: #ffc107 !important;
+    border-bottom-color: #ffc107;
+}
 
-/* Hero Section: Usa el Verde Bosque con transparencia (0.85) */
+/* --- HERO SECTION --- */
 .hero-section {
-    /* Aquí aplicamos la transparencia al color del footer */
     background: linear-gradient(rgba(44, 62, 24, 0.85), rgba(44, 62, 24, 0.85)), url('https://via.placeholder.com/1200x400');
     background-size: cover;
     background-position: center;
@@ -49,426 +55,191 @@ body {
     border-bottom: 4px solid var(--color-acento);
 }
 
-/* Títulos de Categoría */
+/* --- TÍTULOS --- */
 .categoria-titulo {
     color: var(--color-principal);
     background-color: rgba(255, 255, 255, 0.95);
     padding: 15px;
     border-radius: 4px;
-    border-left: 8px solid var(--color-principal); /* Barra lateral verde oscuro */
+    border-left: 8px solid var(--color-principal);
     margin-top: 3rem;
     font-weight: bold;
     text-transform: uppercase;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-/* --- TARJETAS (CARDS) --- */
+/* =========================================
+   1. CATÁLOGO PRINCIPAL (GRID DE TARJETAS)
+   ========================================= */
 .card {
     border: none;
-    background: rgba(255,255,255,0.95);
+    background: var(--color-fondo-tarjeta);
     transition: all 0.3s ease;
     cursor: pointer;
-    /* AQUÍ ESTÁ EL REDONDEADO FUERTE */
-    border-radius: 20px; 
-    overflow: hidden; /* Esto asegura que la imagen no se salga de las curvas */
+    border-radius: 15px;
+    overflow: hidden;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    height: 100%; 
 }
-
 .card:hover { 
     transform: translateY(-5px); 
     box-shadow: 0 15px 30px rgba(0,0,0,0.2); 
 }
 
-/* --- IMÁGENES SIN ESPACIO EXTRA --- */
-.card-img-top {
-    /* 1. Redujimos la altura de 220px a 180px para que no sobre tanto espacio */
-    height: 180px; 
+/* Contenedor de la imagen en la tarjeta */
+.card > div:first-child { 
+    height: 250px;           /* Altura fija para uniformidad en el catálogo */
     width: 100%;
-    
-    /* 2. 'contain' muestra la foto entera. Si prefieres que LLENE todo el cuadro 
-          aunque recorte un poco los bordes, cambia 'contain' por 'cover' */
-    object-fit: contain; 
-    
-    /* 3. Quitamos el fondo blanco extra y redujimos el padding interno */
-    background-color: transparent;
-    padding: 5px; /* Antes era 10px o 15px */
+    background-color: white; 
+    display: flex;           
+    align-items: center;
+    justify-content: center;
+    padding: 15px;          
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* La Imagen de la tarjeta */
+.card-img-top {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain !important; /* Foto completa, sin recortes */
     display: block;
 }
 
-/* Contenedor que envuelve la imagen */
-.card > div:first-child {
-    background-color: white; /* El fondo blanco va en el contenedor, no en la img */
-    padding: 0; /* Cero espacio extra alrededor */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 180px; /* Debe coincidir con la altura de la imagen */
-}
+.card-body { padding: 15px; text-align: center; }
+.card-title { font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 700; color: var(--color-principal); }
 
-/* --- CUERPO DE LA TARJETA (TEXTO) --- */
-.card-body {
-    /* 4. Aquí está el truco: redujimos el espacio de arriba (padding-top) */
-    padding: 10px 15px 15px 15px; 
-    
-    /* Opcional: Si quieres pegar aún más el texto a la imagen, usa:
-    padding-top: 0; */
-}
-
-.card-title {
-    font-size: 1rem; /* Ajustar tamaño de letra si se ve muy grande */
-    margin-bottom: 0.2rem; /* Menos espacio debajo del título */
-    font-weight: 700;
-}
-
-/* Badges (Etiquetas SKU) */
-.badge-natural {
-    background-color: var(--color-principal);
-    color: white;
-    font-weight: normal;
-}
-
-/* Botón Cotizar */
-.btn-whatsapp {
-    background-color: var(--color-principal); /* Verde Bosque */
-    color: white;
-    border: none;
-    padding: 10px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
-.btn-whatsapp:hover {
-    background-color: var(--color-acento); /* Se aclara un poco al pasar el mouse */
-    color: white;
-}
-
-/* Footer */
-footer {
-    background-color: #1a260e !important; /* Un tono CASI negro, derivado del verde */
-    color: #cfd8dc !important;
-}
-.social-icon {
-    font-size: 1.6rem;
-    margin: 0 12px;
-    color: white;
-    transition: color 0.3s;
-}
-.social-icon:hover {
-    color: var(--color-acento);
-}
-/* --- ESTILOS DEL MENÚ DE CATEGORÍAS --- */
-
-/* Contenedor de botones */
-#menu-categorias {
-    padding: 10px;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
-}
-
-/* Botón de Categoría (Estado normal) */
-.btn-categoria {
-    background-color: transparent;
-    border: 2px solid var(--color-principal); /* Borde verde oscuro */
-    color: var(--color-principal);
-    padding: 8px 20px;
-    border-radius: 50px; /* Bordes redondos (Pildoras) */
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-}
-
-/* Efecto Hover (Al pasar el mouse) */
-.btn-categoria:hover {
-    background-color: var(--color-acento);
-    border-color: var(--color-acento);
-    color: white;
-    transform: translateY(-2px);
-}
-
-/* Botón Activo (La categoría que estás viendo) */
-.btn-categoria.activo {
-    background-color: var(--color-principal); /* Relleno verde oscuro */
-    color: white; /* Texto blanco */
-    box-shadow: 0 4px 10px rgba(44, 62, 24, 0.4);
-}
-/* --- EFECTO SKU AL PASAR EL MOUSE --- */
+/* SKU Badge */
 .sku-badge {
-    opacity: 0; /* Invisible por defecto */
+    opacity: 0;
     transition: opacity 0.3s ease;
     font-size: 0.8rem;
-    background-color: rgba(0,0,0,0.6);
+    background-color: rgba(44, 62, 24, 0.9);
     color: white;
-    padding: 2px 8px;
+    padding: 4px 10px;
     border-radius: 4px;
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 10px; right: 10px;
+    font-weight: bold;
 }
+.card:hover .sku-badge { opacity: 1; }
 
-/* Cuando paso el mouse sobre la tarjeta, muestro el SKU */
-.card:hover .sku-badge {
-    opacity: 1;
-}
-
-/* Cursor de "manita" para indicar que se puede hacer clic */
-.card {
-    cursor: pointer;
-}
-
-
-/* --- ESTILOS DE LA VENTANA MODAL (POP-UP) --- */
+/* =========================================
+   2. MODAL DE PRODUCTO (POP-UP) - EL FIX
+   ========================================= */
 .modal-overlay {
-    display: none; /* Oculto por defecto */
+    display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); /* Fondo negro semitransparente */
-    z-index: 9999; /* Por encima de todo */
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
     justify-content: center;
     align-items: center;
     padding: 20px;
-    backdrop-filter: blur(5px); /* Efecto borroso en el fondo */
+    backdrop-filter: blur(5px);
 }
 
 .modal-contenido {
-    background-color: #fdfbf7; /* Color crema suave */
+    background-color: #fdfbf7;
     padding: 30px;
     border-radius: 15px;
-    max-width: 800px;
+    max-width: 900px;
     width: 100%;
     position: relative;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     border: 1px solid var(--color-principal);
     animation: aparecer 0.3s ease-out;
 }
+@keyframes aparecer { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-/* Botón X para cerrar */
 .btn-cerrar {
     position: absolute;
-    top: 15px;
-    right: 20px;
-    background: none;
-    border: none;
-    font-size: 2rem;
-    color: var(--color-principal);
+    top: 15px; right: 20px;
+    background: none; border: none;
+    font-size: 2rem; color: var(--color-principal);
     cursor: pointer;
-    line-height: 1;
+    line-height: 1; z-index: 10;
 }
 
-@keyframes aparecer {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* --- ETIQUETAS DE COLORES --- */
-.badge-color {
-    cursor: pointer;
-    border: 1px solid #ccc;
-    background-color: white;
-    color: #333;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    transition: all 0.2s ease;
-    user-select: none; /* Evita que se seleccione el texto al dar clic rápido */
-}
-
-.badge-color:hover {
-    border-color: var(--color-principal);
-    background-color: #f1f8e9; /* Un verde muy clarito */
-}
-
-/* Cuando un color está seleccionado */
-.badge-color.seleccionado {
-    background-color: var(--color-principal); /* Verde Bosque */
-    color: white;
-    border-color: var(--color-principal);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    font-weight: 600;
-}
-
-/* --- GALERÍA DE IMÁGENES (MINIATURAS) --- */
-.img-miniatura {
-    width: 60px;
-    height: 60px;
-    object-fit: cover; /* Recorta la imagen para que sea cuadrada perfecta */
-    border: 2px solid #ddd;
-    border-radius: 6px;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: all 0.2s ease;
-}
-
-.img-miniatura:hover {
-    opacity: 1;
-    border-color: var(--color-secundario);
-}
-
-/* Cuando una miniatura está activa (viéndose en grande) */
-.img-miniatura.activa {
-    opacity: 1;
-    border-color: var(--color-primario); /* Borde verde fuerte */
-    transform: scale(1.1); /* Crece un poquito */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-/* --- BOTONES DE TALLAS --- */
-.badge-talla {
-    cursor: pointer;
-    min-width: 40px;
-    text-align: center;
-    border: 1px solid var(--color-principal);
-    background-color: transparent;
-    color: var(--color-principal);
-    padding: 5px 10px;
-    border-radius: 4px; /* Bordes un poco más cuadrados */
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-}
-
-.badge-talla:hover {
-    background-color: var(--color-secundario);
-    color: white;
-}
-
-.badge-talla.seleccionado {
-    background-color: var(--color-principal);
-    color: white;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-}
-
-/* --- AJUSTES DEL MODAL --- */
-
-/* 1. Redondear el contenedor blanco de la foto grande */
-#modal-producto .bg-white {
-    border-radius: 15px !important; /* Curva suave */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* Sombra sutil */
-    border: 1px solid #eee !important; /* Borde muy suave */
-}
-
-/* 2. Arreglar la Tabla de Medidas (Icono al lado del texto) */
-#ficha-tecnica table tr {
-    border-bottom: 1px solid rgba(0,0,0,0.05); /* Línea separadora sutil */
-}
-
-#ficha-tecnica table td {
-    padding: 10px 5px; /* Espacio vertical cómodo */
-    vertical-align: middle; /* Centra todo verticalmente */
-}
-
-/* Forzar que la primera columna (Icono + Título) no se parta */
-#ficha-tecnica table td:first-child {
-    width: 1%; /* Truco: ocupa el mínimo espacio posible */
-    white-space: nowrap; /* PROHIBIDO saltar de línea */
-    padding-right: 20px; /* Separación con el dato */
-    color: var(--color-principal);
-    font-weight: 700;
-}
-
-/* El dato (medida/material) alineado a la derecha o izquierda según gusto */
-#ficha-tecnica table td:last-child {
-    color: #333;
-    font-weight: 500;
-}
-/* --- ARREGLO FINAL DE ESPACIOS EN MODAL --- */
-
-.contenedor-ajustado {
-    display: flex;           /* Usamos Flexbox */
-    justify-content: center; /* Centramos horizontalmente */
-    align-items: center;     /* Centramos verticalmente */
-    width: 100%;             /* Que ocupe el ancho disponible */
-    height: auto;            /* ¡IMPORTANTE! La altura es automática (se ajusta a la foto) */
-    padding: 10px;           /* Un poquito de aire interno */
-    overflow: hidden;        /* Que nada se salga */
-}
-
-/* La imagen dentro del modal */
-.contenedor-ajustado img {
-    max-height: 400px;       /* Límite máximo para que no sea gigante en pantallas grandes */
-    width: auto;             /* El ancho se ajusta solo */
-    max-width: 100%;         /* Pero nunca más ancho que la columna */
-    object-fit: contain;     /* Muestra la foto entera */
-    display: block;          /* Elimina el espacio fantasma inferior */
-    margin: 0 auto;          /* Centrado extra por si acaso */
-}
-
-/* --- CAJA DE PRODUCTO PROFESIONAL --- */
+/* --- CAJA DE IMAGEN DEL MODAL (LA SOLUCIÓN ANTI-BRINCOS) --- */
 .caja-producto {
     width: 100%;
-    max-width: 400px; /* Tamaño máximo del cuadro */
-    aspect-ratio: 1 / 1; /* OBLIGA A SER CUADRADO SIEMPRE (1x1) */
+    /* ¡AQUÍ ESTÁ LA MAGIA! Altura FIJA e IMPORTANTE */
+    height: 350px !important; 
     
-    background-color: white; /* Fondo blanco limpio */
+    background-color: white;
     border: 1px solid #e0e0e0;
-    border-radius: 20px; /* Bordes redondeados */
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.03); /* Sombra interna sutil */
+    border-radius: 12px;
     
-    /* Centrado perfecto usando Flexbox */
+    /* Centrado */
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 20px; /* Aire alrededor del producto */
-    margin: 0 auto; /* Centrado en la columna */
+    justify-content: center;
+    
+    padding: 10px;
+    margin-bottom: 15px;
     overflow: hidden;
 }
 
-.caja-producto img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain; /* Muestra la foto entera sin cortar */
+#modal-img {
+    /* La imagen se subordina a la caja de 350px */
+    max-width: 100% !important;
+    max-height: 100% !important;
     
-    /* Sombra suave a la imagen para que "flote" */
-    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); 
+    width: auto !important;
+    height: auto !important;
+    
+    object-fit: contain !important; /* Muestra foto completa */
+    display: block;
 }
 
-/* --- ESTILO DEL LOGO EN LA BARRA --- */
-.logo-navbar {
-    /* 1. Tamaño fijo para asegurar que sea un cuadrado perfecto primero */
-    height: 60px;
-    width: 60px;
-    
-    /* 2. Color de fondo blanco */
-    background-color: white;
-    
-    /* 3. El truco para hacerlo redondo (50% de radio) */
-    border-radius: 50%;
-    
-    /* 4. "Padding" es el relleno. Esto le da aire al logo
-       para que no toque los bordes del círculo blanco. */
-    padding: 8px;
-    
-    /* 5. Asegura que el logo se vea entero dentro del círculo */
-    object-fit: contain;
-    
-    /* Opcional: una sombra suave para que parezca un botón elevado */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+/* Miniaturas */
+.img-miniatura {
+    width: 70px; height: 70px;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    opacity: 0.7; transition: all 0.2s ease;
+}
+.img-miniatura:hover, .img-miniatura.activa {
+    opacity: 1; border-color: var(--color-principal); transform: scale(1.05);
 }
 
-/* Efecto para los enlaces del menú */
-.navbar-nav .nav-link {
-    transition: all 0.3s;
-    font-size: 1.1rem;
-    border-bottom: 2px solid transparent; /* Línea invisible */
+/* Badges y Botones */
+.badge-talla, .badge-color {
+    cursor: pointer; border: 1px solid var(--color-principal);
+    background-color: transparent; color: var(--color-principal);
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 0.9rem; font-weight: 600;
+    transition: all 0.2s; user-select: none;
+}
+.badge-talla:hover, .badge-color:hover { background-color: var(--color-acento); color: white; }
+.badge-talla.seleccionado, .badge-color.seleccionado {
+    background-color: var(--color-principal); color: white;
+    box-shadow: 0 3px 8px rgba(44, 62, 24, 0.3);
 }
 
-.navbar-nav .nav-link:hover {
-    color: #ffc107 !important; /* Color dorado/amarillo al pasar el mouse */
-    border-bottom: 2px solid #ffc107; /* Línea dorada abajo */
-}
-/* FORZAR VISIBILIDAD DEL MENÚ */
-#lista-categorias-nav .nav-link {
-    color: white !important; /* Texto blanco a la fuerza */
-    font-weight: 600;        /* Letra un poco más gruesa */
-    font-size: 1.1rem;       /* Tamaño legible */
-    padding: 10px 15px;      /* Espacio para que no estén pegados */
+/* Ficha Técnica */
+#ficha-tecnica { background-color: rgba(255,255,255,0.8); }
+#ficha-tecnica table td { padding: 8px 5px; vertical-align: middle; }
+#ficha-tecnica table td:first-child {
+    font-weight: 700; color: var(--color-principal);
+    width: 1%; white-space: nowrap; padding-right: 15px;
 }
 
-/* Color amarillo al pasar el mouse */
-#lista-categorias-nav .nav-link:hover {
-    color: #ffc107 !important; 
+/* Botón WhatsApp */
+.btn-whatsapp {
+    background-color: var(--color-principal); color: white;
+    border: none; padding: 12px;
+    font-weight: 700; letter-spacing: 0.5px;
+    border-radius: 8px; transition: background 0.3s;
 }
+.btn-whatsapp:hover { background-color: var(--color-acento); color: white; }
+
+/* Footer */
+footer { background-color: #1a260e !important; color: #cfd8dc !important; }
+.social-icon { font-size: 1.6rem; margin: 0 12px; color: white; transition: color 0.3s; }
+.social-icon:hover { color: var(--color-acento); }

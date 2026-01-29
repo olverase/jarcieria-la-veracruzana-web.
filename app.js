@@ -1,7 +1,7 @@
 // --- CONFIGURACIÓN ---
-const GOOGLE_SHEET_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIhh6linOzlYkLcL4l0edGjEm7k0Z6LnzhIRveVZSJHCQG5W7Ntw14QfCxSWFy6gSyHGzRQKipVO3x/pub?output=csv";
-const MI_TELEFONO_WHATSAPP = "525534018113";
+// ¡OJO! Aquí pega LA MISMA URL DEL SCRIPT que usas en la App Móvil
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeJoBDgELinOsstLnU7bQ83BOjk10x9IRs9r0OzEK5xHrc_jSTQquBgqPsKv112nQQ/exec"; 
+const MI_TELEFONO_WHATSAPP = "525534018113"; 
 
 // Variables Globales
 let todosLosProductos = [];
@@ -12,68 +12,68 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarProductos();
 });
 
-function cargarProductos() {
-    Papa.parse(GOOGLE_SHEET_CSV_URL, {
-        download: true,
-        header: true,
-        dynamicTyping: true,
-        complete: function(results) {
-            todosLosProductos = results.data.filter(p => p.nombre && p.sku);
+// --- NUEVA LÓGICA: Cargar directo del Script (JSON) ---
+async function cargarProductos() {
+    try {
+        const respuesta = await fetch(`${SCRIPT_URL}?action=read`);
+        const datos = await respuesta.json();
+
+        if (datos.status === "success") {
+            // Filtramos filas vacías si las hubiera
+            todosLosProductos = datos.data.filter(p => p.sku && p.nombre);
             
             if (todosLosProductos.length === 0) {
-                console.error("No se encontraron productos.");
-                return;
+                console.warn("No hay productos en la base de datos.");
             }
 
-            // Llamamos a la nueva función del Navbar
             generarMenuNavbar(); 
             filtrarPor('destacados');
-        },
-        error: (err) => console.error("Error CSV:", err)
-    });
+        } else {
+            console.error("Error del script:", datos);
+        }
+    } catch (error) {
+        console.error("Error cargando productos:", error);
+        document.getElementById('contenedor-productos').innerHTML = 
+            '<p class="text-center text-danger mt-5">Error al cargar el catálogo. Intenta recargar.</p>';
+    }
 }
 
-// --- NUEVA LÓGICA PARA EL MENÚ DE ARRIBA ---
+// --- MENÚ DE ARRIBA (NAVBAR) ---
 function generarMenuNavbar() {
     const contenedorNav = document.getElementById('lista-categorias-nav');
-    
-    // Verificación de seguridad
-    if (!contenedorNav) {
-        console.error("Error: No encontré el elemento <ul id='lista-categorias-nav'> en el HTML.");
-        return;
-    }
+    if (!contenedorNav) return;
 
     contenedorNav.innerHTML = '';
+    
+    // Obtenemos categorías únicas
     const categorias = [...new Set(todosLosProductos.map(p => p.categoria ? p.categoria.trim() : 'Otros'))].sort();
 
-    // 1. Enlace Destacados
+    // 1. Destacados
     contenedorNav.appendChild(crearLinkNav('Destacados', 'destacados'));
 
-    // 2. Enlaces Categorías
+    // 2. Dinámicas
     categorias.forEach(cat => {
         contenedorNav.appendChild(crearLinkNav(cat, cat));
     });
 
-    // 3. Enlace Ver Todo
+    // 3. Ver Todo
     contenedorNav.appendChild(crearLinkNav('Ver Todo', 'todo'));
 }
 
 function crearLinkNav(texto, filtro) {
     const li = document.createElement('li');
     li.className = 'nav-item';
-
     const a = document.createElement('a');
-    a.className = 'nav-link text-white mx-2'; // Clases Bootstrap para estilo
+    a.className = 'nav-link text-white mx-2'; 
     a.textContent = texto;
-    a.href = "#"; // Para que parezca enlace
+    a.href = "#";
     
     a.onclick = (e) => {
-        e.preventDefault(); // Evita que la página salte
+        e.preventDefault();
         filtrarPor(filtro);
-        
-        // Cerrar menú en celular automáticamente
+        // Cerrar menú móvil
         const menuCelular = document.getElementById('navbarNav');
-        if (menuCelular.classList.contains('show')) {
+        if (menuCelular && menuCelular.classList.contains('show')) {
             const bsCollapse = new bootstrap.Collapse(menuCelular, {toggle: false});
             bsCollapse.hide();
         }
@@ -89,10 +89,16 @@ function filtrarPor(filtro) {
     contenedor.innerHTML = '';
 
     let filtrados = [];
+    
     if (filtro === 'destacados') {
         titulo.textContent = 'Productos Destacados';
-        filtrados = todosLosProductos.filter(p => p.destacado && p.destacado.toString().toLowerCase() === 'si');
-        if (filtrados.length === 0) filtrados = todosLosProductos.slice(0, 6);
+        // Buscamos "si", "sí", "true" o "destacado"
+        filtrados = todosLosProductos.filter(p => {
+            const dest = p.destacado ? p.destacado.toString().toLowerCase().trim() : "";
+            return dest === 'si' || dest === 'sí' || dest === 'true';
+        });
+        // Si no hay destacados, mostramos los últimos 6
+        if (filtrados.length === 0) filtrados = todosLosProductos.slice(-6);
     } else if (filtro === 'todo') {
         titulo.textContent = 'Catálogo Completo';
         filtrados = todosLosProductos;
@@ -105,25 +111,26 @@ function filtrarPor(filtro) {
 
 function renderizarTarjetas(lista, contenedor) {
     if (lista.length === 0) {
-        contenedor.innerHTML = '<p class="text-center w-100 mt-5">No hay productos en esta categoría.</p>';
+        contenedor.innerHTML = '<p class="text-center w-100 mt-5">No hay productos aquí todavía.</p>';
         return;
     }
 
     lista.forEach(producto => {
         let rawImg = producto.imagen ? producto.imagen.toString() : '';
-        let imgUrl = rawImg.split(',')[0].trim() || 'https://via.placeholder.com/300x300';
+        let imgUrl = rawImg.split(',')[0].trim() || 'https://via.placeholder.com/300x300?text=Sin+Foto';
 
         const col = document.createElement('div');
         col.className = 'col';
         col.innerHTML = `
-            <div class="card h-100 shadow-sm" onclick="abrirModal('${producto.sku}')">
-                <div style="position: relative;">
-                    <img src="${imgUrl}" class="card-img-top" loading="lazy" alt="${producto.nombre}">
+            <div class="card h-100 shadow-sm producto-card" onclick="abrirModal('${producto.sku}')" style="cursor: pointer; transition: transform 0.2s;">
+                <div style="position: relative; overflow: hidden;">
+                    <img src="${imgUrl}" class="card-img-top" loading="lazy" alt="${producto.nombre}" style="height: 250px; object-fit: cover;">
                     <span class="sku-badge">SKU: ${producto.sku}</span>
                 </div>
                 <div class="card-body text-center">
-                    <h5 class="card-title text-dark fs-6">${producto.nombre}</h5>
-                    <p class="small text-success fw-bold">Ver detalles</p>
+                    <h5 class="card-title text-dark fs-6 fw-bold">${producto.nombre}</h5>
+                    <p class="small text-muted mb-0">${producto.categoria || 'Artesanía'}</p>
+                    <p class="small text-success fw-bold mt-2">Ver detalles</p>
                 </div>
             </div>
         `;
@@ -131,7 +138,7 @@ function renderizarTarjetas(lista, contenedor) {
     });
 }
 
-// --- MODAL (POP-UP) ---
+// --- MODAL Y LÓGICA DE DETALLES (Se mantiene igual de sólida) ---
 function abrirModal(skuRecibido) {
     const producto = todosLosProductos.find(p => p.sku.toString() === skuRecibido.toString());
     if (!producto) return;
@@ -140,7 +147,7 @@ function abrirModal(skuRecibido) {
     tallaSeleccionadaActual = null;
     document.getElementById('color-seleccionado-msg').textContent = "";
     
-    // --- 1. IMÁGENES ---
+    // Imágenes
     const rawImg = producto.imagen ? producto.imagen.toString() : '';
     const listaImg = rawImg.split(',').map(s => s.trim()).filter(s => s);
     const imgMain = document.getElementById('modal-img');
@@ -163,23 +170,39 @@ function abrirModal(skuRecibido) {
         });
     }
 
-    // --- 2. TEXTOS BÁSICOS ---
+    // Datos Texto
     document.getElementById('modal-titulo').textContent = producto.nombre;
-    document.getElementById('modal-descripcion').textContent = producto.descripcion;
+    document.getElementById('modal-descripcion').textContent = producto.descripcion || "Sin descripción detallada.";
     document.getElementById('modal-sku').textContent = `SKU: ${producto.sku}`;
     document.getElementById('modal-categoria').textContent = producto.categoria;
 
-    // --- 3. FICHA TÉCNICA (MEDIDAS Y MATERIAL) ---
-    // --- 3. FICHA TÉCNICA (MEDIDAS, MATERIAL Y FORMA) ---
+    // Ficha Técnica Inteligente
     const filaMedidas = document.getElementById('fila-medidas');
     const datoMedidasEl = document.getElementById('dato-medidas');
     const filaMaterial = document.getElementById('fila-material');
     const datoMaterialEl = document.getElementById('dato-material');
-    // Definimos los nuevos elementos para FORMA
-    const filaForma = document.getElementById('fila-forma');
+    const filaForma = document.getElementById('fila-forma'); // Asegúrate de tener este ID en HTML
     const datoFormaEl = document.getElementById('dato-forma');
 
-    // A) Lógica para MEDIDAS
+    // Forma
+    if(producto.forma && producto.forma !== "STD") {
+        if(datoFormaEl) {
+             datoFormaEl.textContent = producto.forma;
+             filaForma.style.display = 'table-row';
+        }
+    } else {
+        if(filaForma) filaForma.style.display = 'none';
+    }
+
+    // Material
+    if (producto.material) {
+        datoMaterialEl.textContent = producto.material;
+        filaMaterial.style.display = 'table-row';
+    } else {
+        filaMaterial.style.display = 'none';
+    }
+
+    // Medidas iniciales
     if (producto.medidas) {
         datoMedidasEl.textContent = producto.medidas;
         filaMedidas.style.display = 'table-row';
@@ -187,40 +210,10 @@ function abrirModal(skuRecibido) {
         filaMedidas.style.display = 'none';
     }
 
-    // B) Lógica para MATERIAL
-    const valorMaterial = producto.material || producto.Material || producto.MATERIAL;
-    if (valorMaterial) {
-        datoMaterialEl.textContent = valorMaterial.toString().trim();
-        filaMaterial.style.display = 'table-row';
-    } else {
-        filaMaterial.style.display = 'none';
-    }
+    // Mostrar ficha si algo existe
+    document.getElementById('ficha-tecnica').style.display = 'block';
 
-    // C) NUEVA Lógica para FORMA
-    // Busca 'forma', 'Forma' o 'FORMA'
-    const valorForma = producto.forma || producto.Forma || producto.FORMA;
-    if (valorForma) {
-        datoFormaEl.textContent = valorForma.toString().trim();
-        filaForma.style.display = 'table-row';
-    } else {
-        filaForma.style.display = 'none';
-    }
-
-    // D) Mostrar u Ocultar la caja completa
-    // Ahora revisamos si ALGUNA de las 3 filas está visible
-    const hayFicha = (
-        filaMedidas.style.display !== 'none' || 
-        filaMaterial.style.display !== 'none' || 
-        filaForma.style.display !== 'none'
-    );
-    document.getElementById('ficha-tecnica').style.display = hayFicha ? 'block' : 'none';
-
-    // ... (El resto de Tallas, Colores y WhatsApp sigue igual) ...
-
-    // --- 4. TALLAS Y COLORES ---
     renderizarOpciones(producto);
-    
-    // --- 5. MOSTRAR MODAL ---
     actualizarBotonWhatsApp(producto);
     document.getElementById('modal-producto').style.display = 'flex';
 }
@@ -230,74 +223,60 @@ function renderizarOpciones(producto) {
     const seccionTallas = document.getElementById('seccion-tallas');
     const datoMedidasEl = document.getElementById('dato-medidas');
     
-    // Obtenemos las medidas originales para poder "resetear" si hace falta
-    const medidasOriginales = producto.medidas ? producto.medidas.toString() : '---';
-    
-    // Preparamos las listas (Arrays) separando por comas
-    const listaTallas = producto.tallas ? producto.tallas.toString().split(',') : [];
-    const listaMedidas = producto.medidas ? producto.medidas.toString().split(',') : [];
+    const listaTallas = producto.tallas ? producto.tallas.toString().split(',').map(s=>s.trim()) : [];
+    const listaMedidas = producto.medidas ? producto.medidas.toString().split(',').map(s=>s.trim()) : [];
+    const medidaOriginal = producto.medidas || '---';
 
     contenedorTallas.innerHTML = '';
-    
+
     if (listaTallas.length > 0 && listaTallas[0] !== "") {
         seccionTallas.style.display = 'block';
-        
         listaTallas.forEach((t, index) => {
             const btn = document.createElement('span');
             btn.className = 'badge-talla';
-            btn.textContent = t.trim();
-            
+            btn.textContent = t;
             btn.onclick = () => {
-                // 1. Estilo Visual del botón
                 document.querySelectorAll('.badge-talla').forEach(b => b.classList.remove('seleccionado'));
                 btn.classList.add('seleccionado');
+                tallaSeleccionadaActual = t;
                 
-                // 2. Guardar selección para WhatsApp
-                tallaSeleccionadaActual = t.trim();
-                actualizarBotonWhatsApp(producto);
-
-                // 3. MAGIA: Actualizar la Medida según la posición (índice)
-                // Si existe una medida en la posición 'index', la mostramos.
+                // Lógica inteligente de medidas
                 if (listaMedidas[index]) {
-                    datoMedidasEl.textContent = listaMedidas[index].trim();
-                    // Efecto visual para que se note el cambio
-                    datoMedidasEl.style.color = "#198754"; // Verde momentáneo
+                    datoMedidasEl.textContent = listaMedidas[index];
+                    datoMedidasEl.style.color = "#198754";
                     setTimeout(() => datoMedidasEl.style.color = "", 500);
                 } else {
-                    // Si no coincide (ej. hay 3 tallas pero solo 1 medida), dejamos la original
-                    datoMedidasEl.textContent = medidasOriginales;
+                    datoMedidasEl.textContent = medidaOriginal;
                 }
+                actualizarBotonWhatsApp(producto);
             };
             contenedorTallas.appendChild(btn);
         });
     } else {
         seccionTallas.style.display = 'none';
-        // Si no hay tallas, mostramos las medidas completas por defecto
-        datoMedidasEl.textContent = medidasOriginales;
+        datoMedidasEl.textContent = medidaOriginal;
     }
-
-    // --- SECCIÓN COLORES (Se queda igual) ---
+    
+    // Colores (Simplificado)
     const contenedorColores = document.getElementById('contenedor-colores');
-    const seccionColores = document.getElementById('seccion-colores');
-    contenedorColores.innerHTML = '';
-
-    if (producto.colores) {
-        seccionColores.style.display = 'block';
-        producto.colores.toString().split(',').forEach(c => {
-            const btn = document.createElement('span');
-            btn.className = 'badge-color';
-            btn.textContent = c.trim();
-            btn.onclick = () => {
+    if(producto.colores) {
+        document.getElementById('seccion-colores').style.display = 'block';
+        contenedorColores.innerHTML = '';
+        producto.colores.split(',').forEach(c => {
+             const btn = document.createElement('span');
+             btn.className = 'badge-color';
+             btn.textContent = c.trim();
+             btn.onclick = () => {
                 document.querySelectorAll('.badge-color').forEach(b => b.classList.remove('seleccionado'));
                 btn.classList.add('seleccionado');
                 colorSeleccionadoActual = c.trim();
-                document.getElementById('color-seleccionado-msg').textContent = `Seleccionado: ${c.trim()}`;
+                document.getElementById('color-seleccionado-msg').textContent = `Color: ${c.trim()}`;
                 actualizarBotonWhatsApp(producto);
-            };
-            contenedorColores.appendChild(btn);
+             };
+             contenedorColores.appendChild(btn);
         });
     } else {
-        seccionColores.style.display = 'none';
+        document.getElementById('seccion-colores').style.display = 'none';
     }
 }
 
@@ -305,7 +284,6 @@ function actualizarBotonWhatsApp(producto) {
     let msg = `Hola, me interesa: ${producto.nombre} (SKU: ${producto.sku})`;
     if (tallaSeleccionadaActual) msg += `\nTamaño: ${tallaSeleccionadaActual}`;
     if (colorSeleccionadoActual) msg += `\nColor: ${colorSeleccionadoActual}`;
-    
     const link = `https://wa.me/${MI_TELEFONO_WHATSAPP}?text=${encodeURIComponent(msg)}`;
     document.getElementById('modal-btn-whatsapp').href = link;
 }
