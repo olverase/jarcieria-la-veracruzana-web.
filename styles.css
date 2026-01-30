@@ -141,12 +141,19 @@ body {
     backdrop-filter: blur(5px);
 }
 
+/* 1. La caja blanca del modal (El contenedor principal) */
 .modal-contenido {
     background-color: #fdfbf7;
-    padding: 30px;
+    padding: 20px;            /* Un poco menos de padding en celular */
     border-radius: 15px;
-    max-width: 900px;
-    width: 100%;
+    
+    width: 95%;               /* Que ocupe casi todo el ancho en celular */
+    max-width: 900px;         /* Pero que no se pase de 900px en PC */
+    
+    /* ESTO ES LO NUEVO: SCROLL */
+    max-height: 90vh;         /* Altura máxima: 90% de la pantalla */
+    overflow-y: auto;         /* Habilita el SCROLL si no cabe el contenido */
+    
     position: relative;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     border: 1px solid var(--color-principal);
@@ -163,35 +170,43 @@ body {
     line-height: 1; z-index: 10;
 }
 
-/* --- CAJA DE IMAGEN DEL MODAL (LA SOLUCIÓN ANTI-BRINCOS) --- */
+/* 2. La Caja de la Imagen (Adaptable) */
 .caja-producto {
     width: 100%;
-    /* ¡AQUÍ ESTÁ LA MAGIA! Altura FIJA e IMPORTANTE */
-    height: 350px !important; 
-    
     background-color: white;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    
-    /* Centrado */
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    padding: 10px;
-    margin-bottom: 15px;
     overflow: hidden;
+    margin-bottom: 15px;
+    
+    /* POR DEFECTO (CELULAR): Altura pequeña para que quepa todo */
+    height: 200px !important; 
 }
 
+/* 3. Media Query (Regla solo para PC y Tablets) */
+@media (min-width: 768px) {
+    .modal-contenido {
+        padding: 30px;        /* Más espacio en PC */
+        width: 100%;
+        overflow-y: visible;  /* En PC suele caber todo, quitamos scroll forzado */
+    }
+
+    .caja-producto {
+        /* EN PC: Altura grande para lucir la foto */
+        height: 350px !important; 
+    }
+}
+
+/* Ajuste de la imagen dentro de la caja */
 #modal-img {
-    /* La imagen se subordina a la caja de 350px */
     max-width: 100% !important;
     max-height: 100% !important;
-    
     width: auto !important;
     height: auto !important;
-    
-    object-fit: contain !important; /* Muestra foto completa */
+    object-fit: contain !important;
     display: block;
 }
 
